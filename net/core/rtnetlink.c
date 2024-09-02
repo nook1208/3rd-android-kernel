@@ -876,9 +876,9 @@ static void set_operstate(struct net_device *dev, unsigned char transition)
 		break;
 	}
 
-	if (READ_ONCE(dev->operstate) != operstate) {
+	if (dev->operstate != operstate) {
 		write_lock(&dev_base_lock);
-		WRITE_ONCE(dev->operstate, operstate);
+		dev->operstate = operstate;
 		write_unlock(&dev_base_lock);
 		netdev_state_change(dev);
 	}
@@ -2443,7 +2443,7 @@ static int do_setvfinfo(struct net_device *dev, struct nlattr **tb)
 
 		nla_for_each_nested(attr, tb[IFLA_VF_VLAN_LIST], rem) {
 			if (nla_type(attr) != IFLA_VF_VLAN_INFO ||
-			    nla_len(attr) < sizeof(struct ifla_vf_vlan_info)) {
+			    nla_len(attr) < NLA_HDRLEN) {
 				return -EINVAL;
 			}
 			if (len >= MAX_VLAN_LIST_LEN)

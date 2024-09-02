@@ -4500,8 +4500,7 @@ void clk_unregister(struct clk *clk)
 	if (ops == &clk_nodrv_ops) {
 		pr_err("%s: unregistered clock: %s\n", __func__,
 		       clk->core->name);
-		clk_prepare_unlock();
-		return;
+		goto unlock;
 	}
 	/*
 	 * Assign empty clock ops for consumers that might still hold
@@ -4535,10 +4534,11 @@ void clk_unregister(struct clk *clk)
 	if (clk->core->protect_count)
 		pr_warn("%s: unregistering protected clock: %s\n",
 					__func__, clk->core->name);
-	clk_prepare_unlock();
 
 	kref_put(&clk->core->ref, __clk_release);
 	free_clk(clk);
+unlock:
+	clk_prepare_unlock();
 }
 EXPORT_SYMBOL_GPL(clk_unregister);
 
@@ -4697,11 +4697,13 @@ void __clk_put(struct clk *clk)
 	if (clk->min_rate > 0 || clk->max_rate < ULONG_MAX)
 		clk_set_rate_range_nolock(clk, 0, ULONG_MAX);
 
-	clk_prepare_unlock();
-
 	owner = clk->core->owner;
 	kref_put(&clk->core->ref, __clk_release);
+
+	clk_prepare_unlock();
+
 	module_put(owner);
+
 	free_clk(clk);
 }
 
