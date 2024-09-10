@@ -205,7 +205,6 @@ static int pinctrl_register_one_pin(struct pinctrl_dev *pctldev,
 				    const struct pinctrl_pin_desc *pin)
 {
 	struct pin_desc *pindesc;
-	int error;
 
 	pindesc = pin_desc_get(pctldev, pin->number);
 	if (pindesc) {
@@ -227,25 +226,18 @@ static int pinctrl_register_one_pin(struct pinctrl_dev *pctldev,
 	} else {
 		pindesc->name = kasprintf(GFP_KERNEL, "PIN%u", pin->number);
 		if (!pindesc->name) {
-			error = -ENOMEM;
-			goto failed;
+			kfree(pindesc);
+			return -ENOMEM;
 		}
 		pindesc->dynamic_name = true;
 	}
 
 	pindesc->drv_data = pin->drv_data;
 
-	error = radix_tree_insert(&pctldev->pin_desc_tree, pin->number, pindesc);
-	if (error)
-		goto failed;
-
+	radix_tree_insert(&pctldev->pin_desc_tree, pin->number, pindesc);
 	pr_debug("registered pin %d (%s) on %s\n",
 		 pin->number, pindesc->name, pctldev->desc->name);
 	return 0;
-
-failed:
-	kfree(pindesc);
-	return error;
 }
 
 static int pinctrl_register_pins(struct pinctrl_dev *pctldev,
@@ -2106,7 +2098,13 @@ int pinctrl_enable(struct pinctrl_dev *pctldev)
 
 	error = pinctrl_claim_hogs(pctldev);
 	if (error) {
-		dev_err(pctldev->dev, "could not claim hogs: %i\n", error);
+		dev_err(pctldev->dev, "could not claim hogs: %i\n",
+			error);
+		pinctrl_free_pindescs(pctldev, pctldev->desc->pins,
+				      pctldev->desc->npins);
+		mutex_destroy(&pctldev->mutex);
+		kfree(pctldev);
+
 		return error;
 	}
 

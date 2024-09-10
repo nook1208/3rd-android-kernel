@@ -364,31 +364,28 @@ out:
 	return rc;
 }
 
+static int qeth_alloc_cq(struct qeth_card *card)
+{
+	if (card->options.cq == QETH_CQ_ENABLED) {
+		QETH_CARD_TEXT(card, 2, "cqon");
+		card->qdio.c_q = qeth_alloc_qdio_queue();
+		if (!card->qdio.c_q) {
+			dev_err(&card->gdev->dev, "Failed to create completion queue\n");
+			return -ENOMEM;
+		}
+	} else {
+		QETH_CARD_TEXT(card, 2, "nocq");
+		card->qdio.c_q = NULL;
+	}
+	return 0;
+}
+
 static void qeth_free_cq(struct qeth_card *card)
 {
 	if (card->qdio.c_q) {
 		qeth_free_qdio_queue(card->qdio.c_q);
 		card->qdio.c_q = NULL;
 	}
-}
-
-static int qeth_alloc_cq(struct qeth_card *card)
-{
-	if (card->options.cq == QETH_CQ_ENABLED) {
-		QETH_CARD_TEXT(card, 2, "cqon");
-		if (!card->qdio.c_q) {
-			card->qdio.c_q = qeth_alloc_qdio_queue();
-			if (!card->qdio.c_q) {
-				dev_err(&card->gdev->dev,
-					"Failed to create completion queue\n");
-				return -ENOMEM;
-			}
-		}
-	} else {
-		QETH_CARD_TEXT(card, 2, "nocq");
-		qeth_free_cq(card);
-	}
-	return 0;
 }
 
 static enum iucv_tx_notify qeth_compute_cq_notification(int sbalf15,
@@ -2631,10 +2628,6 @@ static int qeth_alloc_qdio_queues(struct qeth_card *card)
 
 	QETH_CARD_TEXT(card, 2, "allcqdbf");
 
-	/* completion */
-	if (qeth_alloc_cq(card))
-		goto out_err;
-
 	if (atomic_cmpxchg(&card->qdio.state, QETH_QDIO_UNINITIALIZED,
 		QETH_QDIO_ALLOCATED) != QETH_QDIO_UNINITIALIZED)
 		return 0;
@@ -2670,6 +2663,10 @@ static int qeth_alloc_qdio_queues(struct qeth_card *card)
 		queue->priority = QETH_QIB_PQUE_PRIO_DEFAULT;
 	}
 
+	/* completion */
+	if (qeth_alloc_cq(card))
+		goto out_freeoutq;
+
 	return 0;
 
 out_freeoutq:
@@ -2680,8 +2677,6 @@ out_freeoutq:
 	qeth_free_buffer_pool(card);
 out_buffer_pool:
 	atomic_set(&card->qdio.state, QETH_QDIO_UNINITIALIZED);
-	qeth_free_cq(card);
-out_err:
 	return -ENOMEM;
 }
 
@@ -2689,12 +2684,11 @@ static void qeth_free_qdio_queues(struct qeth_card *card)
 {
 	int i, j;
 
-	qeth_free_cq(card);
-
 	if (atomic_xchg(&card->qdio.state, QETH_QDIO_UNINITIALIZED) ==
 		QETH_QDIO_UNINITIALIZED)
 		return;
 
+	qeth_free_cq(card);
 	for (j = 0; j < QDIO_MAX_BUFFERS_PER_Q; ++j) {
 		if (card->qdio.in_q->bufs[j].rx_skb) {
 			consume_skb(card->qdio.in_q->bufs[j].rx_skb);
@@ -3746,11 +3740,24 @@ static void qeth_qdio_poll(struct ccw_device *cdev, unsigned long card_ptr)
 
 int qeth_configure_cq(struct qeth_card *card, enum qeth_cq cq)
 {
-	if (card->options.cq == QETH_CQ_NOTAVAILABLE)
-		return -1;
+	int rc;
 
-	card->options.cq = cq;
-	return 0;
+	if (card->options.cq ==  QETH_CQ_NOTAVAILABLE) {
+		rc = -1;
+		goto out;
+	} else {
+		if (card->options.cq == cq) {
+			rc = 0;
+			goto out;
+		}
+
+		qeth_free_qdio_queues(card);
+		card->options.cq = cq;
+		rc = 0;
+	}
+out:
+	return rc;
+
 }
 EXPORT_SYMBOL_GPL(qeth_configure_cq);
 

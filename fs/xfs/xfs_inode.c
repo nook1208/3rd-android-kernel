@@ -1652,11 +1652,8 @@ xfs_inode_needs_inactive(
 	if (VFS_I(ip)->i_mode == 0)
 		return false;
 
-	/*
-	 * If this is a read-only mount, don't do this (would generate I/O)
-	 * unless we're in log recovery and cleaning the iunlinked list.
-	 */
-	if (xfs_is_readonly(mp) && !xlog_recovery_needed(mp->m_log))
+	/* If this is a read-only mount, don't do this (would generate I/O) */
+	if (xfs_is_readonly(mp))
 		return false;
 
 	/* If the log isn't running, push inodes straight to reclaim. */
@@ -1716,11 +1713,8 @@ xfs_inactive(
 	mp = ip->i_mount;
 	ASSERT(!xfs_iflags_test(ip, XFS_IRECOVERY));
 
-	/*
-	 * If this is a read-only mount, don't do this (would generate I/O)
-	 * unless we're in log recovery and cleaning the iunlinked list.
-	 */
-	if (xfs_is_readonly(mp) && !xlog_recovery_needed(mp->m_log))
+	/* If this is a read-only mount, don't do this (would generate I/O) */
+	if (xfs_is_readonly(mp))
 		goto out;
 
 	/* Metadata inodes require explicit resource cleanup. */
@@ -2485,7 +2479,7 @@ xfs_remove(
 			error = xfs_dir_replace(tp, ip, &xfs_name_dotdot,
 					tp->t_mountp->m_sb.sb_rootino, 0);
 			if (error)
-				goto out_trans_cancel;
+				return error;
 		}
 	} else {
 		/*
