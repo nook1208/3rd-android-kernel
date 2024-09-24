@@ -612,8 +612,6 @@
   seq_putc
   seq_puts
   seq_read
-  serdev_device_write
-  serdev_device_write_wakeup
   set_cpus_allowed_ptr
   set_normalized_timespec64
   sg_alloc_table
