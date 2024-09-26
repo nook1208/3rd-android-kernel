@@ -110,19 +110,20 @@ unsafe impl super::Backend for MutexBackend {
         unsafe { bindings::mutex_lock(ptr) };
     }
 
-    unsafe fn trylock(ptr: *mut Self::State) -> Option<Self::GuardState> {
-        // SAFETY: The safety requirements of this function ensure that `ptr` points to valid
-        // memory, and that it has been initialised before.
-        if unsafe { bindings::mutex_trylock(ptr) } != 0 {
-            Some(())
-        } else {
-            None
-        }
-    }
-
     unsafe fn unlock(ptr: *mut Self::State, _guard_state: &Self::GuardState) {
         // SAFETY: The safety requirements of this function ensure that `ptr` is valid and that the
         // caller is the owner of the mutex.
         unsafe { bindings::mutex_unlock(ptr) };
+    }
+
+    unsafe fn try_lock(ptr: *mut Self::State) -> Option<Self::GuardState> {
+        // SAFETY: The `ptr` pointer is guaranteed to be valid and initialized before use.
+        let result = unsafe { bindings::mutex_trylock(ptr) };
+
+        if result != 0 {
+            Some(())
+        } else {
+            None
+        }
     }
 }

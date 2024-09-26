@@ -703,7 +703,7 @@ unsafe extern "C" fn rust_shrink_free_page(
         };
 
         // We can't lock it normally here, since we hold the lru lock.
-        let inner = match range.lock.trylock() {
+        let inner = match range.lock.try_lock() {
             Some(inner) => inner,
             None => return LRU_SKIP,
         };
