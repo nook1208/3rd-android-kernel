@@ -971,7 +971,7 @@ int __pkvm_start_teardown_vm(pkvm_handle_t handle)
 		ret = -EBUSY;
 	else if (!hyp_vm->is_dying)
 		hyp_vm->is_dying = true;
-	hyp_read_unlock(&vm_table_lock);
+	hyp_write_unlock(&vm_table_lock);
 
 	if (!ret)
 		ret = kvm_reclaim_ffa_guest_pages(hyp_vm, handle);
