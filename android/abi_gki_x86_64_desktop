@@ -642,7 +642,6 @@
   dma_max_mapping_size
   dmam_free_coherent
   dmam_pool_create
-  dma_ops
   dma_pool_alloc
   dma_pool_create
   dma_pool_destroy
