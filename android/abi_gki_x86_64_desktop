@@ -405,7 +405,6 @@
   debugfs_create_file_unsafe
   debugfs_create_str
   debugfs_create_symlink
-  debugfs_create_u16
   debugfs_create_u32
   debugfs_create_u8
   debugfs_create_ulong
