@@ -93,6 +93,7 @@
   acpi_unregister_gsi
   acpi_video_backlight_string
   acpi_walk_namespace
+  add_device_randomness
   add_taint
   add_timer
   add_uevent_var
@@ -133,6 +134,10 @@
   backlight_force_update
   _bcd2bin
   bcmp
+  bdi_alloc
+  bdi_put
+  bdi_register
+  bdi_unregister
   __bh_read
   __bh_read_batch
   bh_uptodate_or_lock
@@ -389,6 +394,7 @@
   current_umask
   current_work
   dapm_regulator_event
+  deactivate_locked_super
   debugfs_attr_read
   debugfs_attr_write
   debugfs_create_blob
@@ -567,6 +573,8 @@
   devm_snd_soc_register_card
   devm_snd_soc_register_component
   __devm_spi_alloc_controller
+  devm_spi_mem_dirmap_create
+  devm_spi_register_controller
   _dev_notice
   dev_open
   dev_pm_domain_attach
@@ -1107,6 +1115,7 @@
   finish_wait
   firmware_kobj
   firmware_request_nowarn
+  fixed_size_llseek
   flow_block_cb_setup_simple
   flow_rule_match_basic
   flow_rule_match_eth_addrs
@@ -1175,6 +1184,7 @@
   generic_mii_ioctl
   generic_read_dir
   generic_ro_fops
+  generic_shutdown_super
   generic_write_checks
   generic_write_end
   genlmsg_multicast_allns
@@ -1706,7 +1716,10 @@
   __local_bh_enable_ip
   local_clock
   __lock_buffer
+  lockref_get
   lock_sock_nested
+  logfc
+  lookup_bdev
   lookup_user_key
   loops_per_jiffy
   lpit_read_residency_count_address
@@ -1923,6 +1936,7 @@
   nvmem_register
   nvmem_unregister
   of_address_to_resource
+  of_alias_get_id
   of_clk_add_hw_provider
   of_clk_del_provider
   of_clk_hw_onecell_get
@@ -1936,6 +1950,7 @@
   of_find_property
   of_fwnode_ops
   of_get_child_by_name
+  of_get_compatible_child
   of_get_mac_address
   of_get_next_child
   of_get_property
@@ -1944,8 +1959,12 @@
   of_machine_compatible_match
   of_match_device
   of_match_node
+  of_n_addr_cells
+  of_node_name_prefix
+  of_n_size_cells
   of_nvmem_cell_get
   __of_parse_phandle_with_args
+  of_platform_populate
   of_property_match_string
   of_property_read_string
   of_property_read_string_helper
@@ -2235,6 +2254,7 @@
   print_hex_dump
   _printk
   __printk_ratelimit
+  proc_create_single_data
   proc_dointvec
   proc_dointvec_minmax
   proc_dostring
@@ -2380,6 +2400,7 @@
   release_resource
   release_sock
   remap_pfn_range
+  remove_proc_entry
   remove_wait_queue
   rep_movs_alternative
   request_firmware
@@ -2517,6 +2538,7 @@
   sg_alloc_table_from_pages_segment
   sg_copy_from_buffer
   sg_copy_to_buffer
+  sget_dev
   sg_free_table
   sg_init_one
   sg_init_table
@@ -2827,6 +2849,15 @@
   spi_controller_suspend
   spi_finalize_current_transfer
   spi_get_device_id
+  spi_mem_adjust_op_size
+  spi_mem_dirmap_read
+  spi_mem_dirmap_write
+  spi_mem_driver_register_with_owner
+  spi_mem_driver_unregister
+  spi_mem_exec_op
+  spi_mem_get_name
+  spi_mem_supports_op
+  spi_new_device
   spi_register_controller
   __spi_register_driver
   spi_setup
@@ -2854,6 +2885,7 @@
   strcpy
   stream_open
   strim
+  string_get_size
   strlcat
   strlen
   strncasecmp
@@ -3358,6 +3390,7 @@
   video_ioctl2
   __video_register_device
   video_unregister_device
+  __virt_addr_valid
   virtio_reset_device
   virtqueue_add_inbuf
   virtqueue_add_outbuf
