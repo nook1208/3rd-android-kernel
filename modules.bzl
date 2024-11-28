@@ -196,8 +196,10 @@ def get_kunit_modules_list(arch = None):
         kunit_modules_list += []
     elif arch == "x86_64":
         kunit_modules_list += []
+    elif arch == "riscv64":
+        kunit_modules_list += []
     else:
-        fail("{}: arch {} not supported. Use one of [arm, arm64, i386, x86_64]".format(
+        fail("{}: arch {} not supported. Use one of [arm, arm64, i386, x86_64, riscv64]".format(
             str(native.package_relative_label(":x")).removesuffix(":x"),
             arch,
         ))
