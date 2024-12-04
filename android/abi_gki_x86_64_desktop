@@ -3291,6 +3291,7 @@
   usleep_range_state
   utf16s_to_utf8s
   utf32_to_utf8
+  utf8_data_table
   utf8_to_utf32
   uuid_is_valid
   uuid_null
