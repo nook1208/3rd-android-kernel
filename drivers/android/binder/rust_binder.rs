@@ -263,9 +263,7 @@ struct BinderModule {}
 
 impl kernel::Module for BinderModule {
     fn init(_module: &'static kernel::ThisModule) -> Result<Self> {
-        // SAFETY: This is the very first thing that happens in this module, so nothing else has
-        // called `Contexts::init` yet. Furthermore, we cannot move a value in a global, so the
-        // `Contexts` will not be moved after this call.
+        // SAFETY: The module initializer never runs twice, so we only call this once.
         unsafe { crate::context::CONTEXTS.init() };
 
         // SAFETY: This just accesses global booleans.
