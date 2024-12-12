@@ -184,7 +184,7 @@ static int realm_create_rd(struct kvm *kvm)
 		}
 	}
 
-	realm->ia_bits = VTCR_EL2_IPA(kvm->arch.mmu.vtcr);
+	realm->ia_bits = VTCR_EL2_IPA(kvm->arch.vtcr);
 
 	params->rtt_level_start = get_start_level(realm);
 	params->rtt_num_start = pgd_sz;
@@ -723,7 +723,7 @@ int kvm_init_realm_vm(struct kvm *kvm)
 		return -ENOMEM;
 
 	/* Default parameters, not exposed to user space */
-	params->s2sz = VTCR_EL2_IPA(kvm->arch.mmu.vtcr);
+	params->s2sz = VTCR_EL2_IPA(kvm->arch.vtcr);
 	kvm->arch.realm.params = params;
 	return 0;
 }
