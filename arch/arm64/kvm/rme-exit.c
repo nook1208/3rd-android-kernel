@@ -99,7 +99,7 @@ static int rec_exit_ripas_change(struct kvm_vcpu *vcpu)
 	if (realm_is_addr_protected(realm, base) &&
 	    realm_is_addr_protected(realm, top - 1)) {
 		kvm_mmu_topup_memory_cache(&vcpu->arch.mmu_page_cache,
-					   kvm_mmu_cache_min_pages(vcpu->arch.hw_mmu));
+					   kvm_mmu_cache_min_pages(vcpu->kvm));
 		write_lock(&kvm->mmu_lock);
 		ret = realm_set_ipa_state(vcpu, base, top, ripas);
 		write_unlock(&kvm->mmu_lock);
